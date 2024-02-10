@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
           devServer: {
             plugins: [
               pagesPlugin({
-                d1Databases: ['DATABASE'],
+                d1Databases: ['DB'],
                 d1Persist: true
               })
             ]
