@@ -107,7 +107,7 @@ export const POST = createRoute(
   }),
   async (c) => {
     const { title, content } = c.req.valid('form')
-    await createArticle(c.env.DATABASE, {
+    await createArticle(c.env.DB, {
       title,
       content
     })

@@ -39,7 +39,7 @@ const ArticleList: FC<{ article: Article }> = ({ article }) => {
 }
 
 export const GET = createRoute(async (c) => {
-  const articles = await findAllArticles(c.env.DATABASE)
+  const articles = await findAllArticles(c.env.DB)
 
   return c.render(
     <section

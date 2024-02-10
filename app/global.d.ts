@@ -8,8 +8,8 @@ type Head = {
 declare module 'hono' {
   interface Env {
     Bindings: {
-      DATABASE: D1Database
     }
+    DB: D1Database
   }
   interface ContextRenderer {
     (content: string | Promise<string>, head?: Head): Response | Promise<Response>

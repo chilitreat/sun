@@ -24,7 +24,7 @@ const titleClass = css`
 
 export default createRoute(async (c) => {
   const { id } = c.req.param()
-  const article = await findArticleById(c.env.DATABASE, id)
+  const article = await findArticleById(c.env.DB, id)
 
   if (!article) {
     return c.notFound()
