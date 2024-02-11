@@ -73,7 +73,7 @@ const Page: FC<{ data?: Data }> = ({ data }) => {
             </div>
             <div>
               <ContentForm initialValue={data?.content} />
-              {data?.error?.content && <p class="text-red-500 text-sm">{data.error.content}</p>}
+              {data?.error?.content && <p class={classTextRed}>{data.error.content}</p>}
             </div>
           </div>
           <div class={classDivButton}>
