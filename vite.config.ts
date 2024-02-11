@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
             plugins: [
               pagesPlugin({
                 d1Databases: ['DB'],
-                d1Persist: true
+                d1Persist: './.wrangler/state/v3/d1'
               })
             ]
           }
