@@ -39,6 +39,8 @@ const ArticleList: FC<{ article: Article }> = ({ article }) => {
 }
 
 export const GET = createRoute(async (c) => {
+  // await c.env.DB.prepare('DROP TABLE IF EXISTS articles; CREATE TABLE articles (id TEXT PRIMARY KEY,created_at TEXT DEFAULT (datetime('now')),title TEXT,content TEXT);').run()
+
   const articles = await findAllArticles(c.env.DB)
 
   return c.render(
