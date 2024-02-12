@@ -1,6 +1,6 @@
 import pagesBuild from '@hono/vite-cloudflare-pages';
 import pagesPlugin from '@hono/vite-dev-server/cloudflare-pages';
-import ssg from '@hono/vite-ssg';
+// import ssg from '@hono/vite-ssg';
 import mdx from '@mdx-js/rollup';
 import honox from 'honox/vite';
 import remarkFrontmatter from 'remark-frontmatter';
@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
       plugins: [clientBuild()],
       build: {
         rollupOptions: {
-          input: ['/app/style.css'],
+          input: ['./app/style.css'],
           output: {
             assetFileNames: 'static/assets/[name].[ext]',
           },
@@ -26,7 +26,6 @@ export default defineConfig(({ mode }) => {
   } else {
     return {
       plugins: [
-        pagesBuild(),
         honox({
           devServer: {
             entry,
@@ -38,7 +37,8 @@ export default defineConfig(({ mode }) => {
             ],
           },
         }),
-        ssg({ entry }),
+        pagesBuild(),
+        // ssg({ entry }),
         mdx({
           jsxImportSource: 'hono/jsx',
           remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
