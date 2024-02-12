@@ -4,6 +4,7 @@ import mdx from '@mdx-js/rollup';
 import honox from 'honox/vite';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
+import rehypePrettyCode from 'rehype-pretty-code';
 import clientBuild from 'honox/vite/client';
 import { defineConfig } from 'vite';
 
@@ -15,7 +16,7 @@ export default defineConfig(({ mode }) => {
       plugins: [clientBuild()],
       build: {
         rollupOptions: {
-          input: ['./app/style.css',],
+          input: ['./app/style.css'],
           output: {
             assetFileNames: 'static/assets/[name].[ext]',
           },
@@ -40,6 +41,7 @@ export default defineConfig(({ mode }) => {
         mdx({
           jsxImportSource: 'hono/jsx',
           remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
+          rehypePlugins: [rehypePrettyCode],
         }),
       ],
     };

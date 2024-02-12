@@ -52,7 +52,7 @@ export default jsxRenderer(({ children, title, frontmatter }) => {
           </nav>
         </header>
         <main class="px-2">
-          <article>{children}</article>
+          <article class="prose">{children}</article>
         </main>
         <footer class='bg-gray-100'>
           <p class='text-center text-sm'>
