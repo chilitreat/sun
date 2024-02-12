@@ -1,5 +1,5 @@
 import { FC } from 'hono/jsx';
-import type { Meta } from '../types';
+import type { Meta } from '../../types';
 
 const Card: FC = ({ children, id, emoji, author, created_at }) => {
   return (
@@ -22,7 +22,7 @@ const Card: FC = ({ children, id, emoji, author, created_at }) => {
 };
 
 export default function Top() {
-  const posts = import.meta.glob<{ frontmatter: Meta }>('./posts/*.mdx', {
+  const posts = import.meta.glob<{ frontmatter: Meta }>('../posts/*.mdx', {
     eager: true,
   });
   return (
