@@ -1,4 +1,4 @@
-import pagesPlugin from '@hono/vite-dev-server/cloudflare-pages';
+import pagesPlugin from '@hono/vite-cloudflare-pages';
 import ssg from '@hono/vite-ssg';
 import mdx from '@mdx-js/rollup';
 import honox from 'honox/vite';
