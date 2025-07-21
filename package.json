@@ -3,9 +3,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode client && vite build && yarn tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
+    "build": "vite build --mode client && vite build && npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
     "preview": "wrangler pages dev ./dist",
-    "deploy": "yarn build && wrangler pages deploy ./dist"
+    "deploy": "npm run build && wrangler pages deploy ./dist"
   },
   "private": true,
   "dependencies": {
@@ -32,6 +32,5 @@
     "tailwindcss": "^3.4.1",
     "vite": "^5.0.12",
     "wrangler": "^3.27.0"
-  },
-  "packageManager": "yarn@4.0.2"
+  }
 }
