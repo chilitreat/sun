@@ -50,7 +50,10 @@ export default defineConfig(({ mode }) => {
             ],
           },
         }),
-        ssg({ entry }),
+        ssg({ 
+          entry,
+          minify: false  // Disable minification to prevent HTML structure issues
+        }),
         mdx({
           jsxImportSource: 'hono/jsx',
           remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],

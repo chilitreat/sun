@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
-    "build": "vite build --mode client && npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
+    "build": "vite build --mode client && vite build --mode server && npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
     "preview": "wrangler pages dev ./dist",
     "deploy": "npm run build && wrangler pages deploy ./dist"
   },

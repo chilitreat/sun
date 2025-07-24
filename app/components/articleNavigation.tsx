@@ -1,49 +1,9 @@
-import { css } from 'hono/css'
 import type { FC } from 'hono/jsx'
 
 type ArticleNavigationProps = {
   previousPost?: { id: string; title: string }
   nextPost?: { id: string; title: string }
 }
-
-const navigationContainerClass = css`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-`
-
-const navigationLinkClass = css`
-  display: inline-block;
-  text-decoration: none;
-  color: rgb(55 65 81);
-  transition: color 0.2s ease;
-  white-space: nowrap;
-  padding: 0.5rem 1rem;
-
-  &:hover {
-    color: rgb(59 130 246);
-  }
-
-  &:focus {
-    outline: 2px solid rgb(59 130 246);
-    outline-offset: 2px;
-    border-radius: 0.25rem;
-  }
-`
-
-const navigationLabelClass = css`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: inherit;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-`
 
 const ArticleNavigation: FC<ArticleNavigationProps> = ({ previousPost, nextPost }) => {
   // Don't render if no navigation is available
@@ -52,14 +12,17 @@ const ArticleNavigation: FC<ArticleNavigationProps> = ({ previousPost, nextPost 
   }
 
   return (
-    <nav class={navigationContainerClass} aria-label="記事ナビゲーション">
+    <nav 
+      class="flex justify-between items-center md:flex-row flex-col md:gap-0 gap-4 md:items-center items-stretch" 
+      aria-label="記事ナビゲーション"
+    >
       {previousPost ? (
         <a
           href={`/posts/${previousPost.id.replace(/\.mdx$/, '').replace('../posts/', '')}`}
-          // class={previousLinkClass}
+          class="inline-block no-underline text-gray-700 transition-colors duration-200 whitespace-nowrap p-2 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded"
           aria-label={`前の記事: ${previousPost.title}`}
         >
-          <span class={navigationLabelClass}>← 前の記事</span>
+          <span class="text-sm font-medium uppercase tracking-wide">← 前の記事</span>
         </a>
       ) : (
         <div aria-hidden="true"></div>
@@ -68,10 +31,10 @@ const ArticleNavigation: FC<ArticleNavigationProps> = ({ previousPost, nextPost 
       {nextPost ? (
         <a
           href={`/posts/${nextPost.id.replace(/\.mdx$/, '').replace('../posts/', '')}`}
-          // class={nextLinkClass}
+          class="inline-block no-underline text-gray-700 transition-colors duration-200 whitespace-nowrap p-2 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded"
           aria-label={`次の記事: ${nextPost.title}`}
         >
-          <span class={navigationLabelClass}>次の記事 →</span>
+          <span class="text-sm font-medium uppercase tracking-wide">次の記事 →</span>
         </a>
       ) : (
         <div aria-hidden="true"></div>
