@@ -339,6 +339,9 @@ describe('Navigation Error Handling', () => {
     })
 
     it('should handle posts with missing titles gracefully', () => {
+      // Clear cache to ensure clean test state
+      clearMemoCache()
+      
       const postsWithoutTitles: PostsMap = {
         'post1': {
           frontmatter: {

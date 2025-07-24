@@ -1,78 +1,6 @@
 import { Meta, PostWithNavigation } from '../types'
 import { PostsMap } from './filtering'
-import { memoizedSortPostsByDate, clearMemoCache } from './performance'
-
-// Local memoization cache for navigation functions
-const navigationMemoCache = new Map<string, any>()
-
-/**
- * Simple memoization function for navigation utilities
- */
-function memoizeNavigation<T extends (...args: any[]) => any>(
-  fn: T,
-  keyGenerator: (...args: Parameters<T>) => string
-): T {
-  return ((...args: Parameters<T>) => {
-    const key = keyGenerator(...args)
-
-    if (navigationMemoCache.has(key)) {
-      return navigationMemoCache.get(key)
-    }
-
-    const result = fn(...args)
-    navigationMemoCache.set(key, result)
-    return result
-  }) as T
-}
-
-/**
- * Sorts posts by created_at date in descending order (newest first)
- * @param posts - Map of posts to sort
- * @returns Array of sorted post entries [id, post], empty array if invalid input
- */
-const sortPostsByDate = (posts: PostsMap): [string, { frontmatter: Meta }][] => {
-  try {
-    if (!posts || typeof posts !== 'object') {
-      console.warn('Invalid posts map provided to sortPostsByDate')
-      return []
-    }
-
-    return Object.entries(posts)
-      .filter(([id, post]) => {
-        // Filter out posts with invalid structure
-        try {
-          return post &&
-                 post.frontmatter &&
-                 typeof post.frontmatter.created_at === 'string' &&
-                 post.frontmatter.created_at.trim().length > 0 &&
-                 typeof post.frontmatter.title === 'string' &&
-                 post.frontmatter.title.trim().length > 0
-        } catch (error) {
-          console.warn(`Invalid post structure for ${id}:`, error)
-          return false
-        }
-      })
-      .sort((a, b) => {
-        try {
-          const dateA = new Date(a[1].frontmatter.created_at).getTime()
-          const dateB = new Date(b[1].frontmatter.created_at).getTime()
-
-          // Handle invalid dates
-          if (isNaN(dateA) && isNaN(dateB)) return 0
-          if (isNaN(dateA)) return 1
-          if (isNaN(dateB)) return -1
-
-          return dateB - dateA // Descending order (newest first)
-        } catch (error) {
-          console.warn('Error sorting posts by date:', error)
-          return 0
-        }
-      })
-  } catch (error) {
-    console.error('Error in sortPostsByDate:', error)
-    return []
-  }
-}
+import { memoizedSortPostsByDate } from './performance'
 
 /**
  * Internal function to find adjacent posts (non-memoized)
@@ -152,10 +80,13 @@ const findAdjacentPostsInternal = (currentId: string, posts: PostsMap): {
   }
 }
 
+// Use performance.ts unified memoization system
+import { memoize } from './performance'
+
 /**
- * Memoized version of findAdjacentPosts
+ * Memoized version of findAdjacentPosts using unified cache
  */
-const memoizedFindAdjacentPosts = memoizeNavigation(
+const memoizedFindAdjacentPosts = memoize(
   findAdjacentPostsInternal,
   (currentId, posts) => `adjacentPosts:${currentId}:${posts && typeof posts === 'object' ? Object.keys(posts).sort().join(',') : 'invalid'}`
 )
@@ -248,12 +179,8 @@ export const getPostsWithNavigation = (posts: PostsMap): PostWithNavigation[] =>
   }
 }
 
-/**
- * Clears the navigation memoization cache
- */
-export const clearNavigationMemoCache = (): void => {
-  navigationMemoCache.clear()
-}
+// Navigation cache is now unified with performance cache
+// Use clearMemoCache from performance.ts instead
 
 /**
  * Validates if a post ID exists in the posts map

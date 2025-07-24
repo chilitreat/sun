@@ -7,16 +7,29 @@ import { Meta } from '../types'
 import { PostsMap } from './filtering'
 import { parseHashtags, normalizeHashtag } from './hashtags'
 
-// Cache for memoized results
+// LRU Cache implementation for memory leak prevention
+const MAX_CACHE_SIZE = 500 // Configurable cache size limit
 const memoCache = new Map<string, any>()
 
 /**
- * Simple memoization function with cache key generation
+ * LRU cache eviction when size exceeds limit
+ */
+function evictLRUCache(): void {
+  if (memoCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = memoCache.keys().next().value
+    if (firstKey) {
+      memoCache.delete(firstKey)
+    }
+  }
+}
+
+/**
+ * Memory-safe memoization function with LRU cache
  * @param fn - Function to memoize
  * @param keyGenerator - Function to generate cache key from arguments
- * @returns Memoized function
+ * @returns Memoized function with memory management
  */
-function memoize<T extends (...args: any[]) => any>(
+export function memoize<T extends (...args: any[]) => any>(
   fn: T,
   keyGenerator: (...args: Parameters<T>) => string
 ): T {
@@ -24,8 +37,15 @@ function memoize<T extends (...args: any[]) => any>(
     const key = keyGenerator(...args)
 
     if (memoCache.has(key)) {
-      return memoCache.get(key)
+      // Move to end (most recently used)
+      const value = memoCache.get(key)
+      memoCache.delete(key)
+      memoCache.set(key, value)
+      return value
     }
+
+    // Evict LRU entry if cache is full
+    evictLRUCache()
 
     const result = fn(...args)
     memoCache.set(key, result)

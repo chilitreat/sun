@@ -5,46 +5,60 @@ import { parseHashtags } from '../utils/hashtags';
 import { findAdjacentPosts } from '../utils/navigation';
 import { Meta } from '../types';
 
+/**
+ * Extract post ID from file path
+ */
+const extractPostId = (path: string): string => {
+  return path.replace('./posts/', '').replace('.mdx', '');
+};
+
+/**
+ * Convert glob posts to posts map format
+ */
+const convertToPostsMap = (posts: Record<string, { frontmatter: Meta }>): Record<string, { frontmatter: Meta }> => {
+  return Object.entries(posts).reduce((acc, [key, module]) => {
+    const id = extractPostId(key);
+    acc[id] = { frontmatter: module.frontmatter };
+    return acc;
+  }, {} as Record<string, { frontmatter: Meta }>);
+};
+
+/**
+ * Get navigation info for current post
+ */
+const getNavigationInfo = (currentPath: string, posts: Record<string, { frontmatter: Meta }>) => {
+  if (!currentPath.startsWith('/posts/')) {
+    return { currentPostId: null, navigationInfo: {} };
+  }
+
+  const postSlug = currentPath.replace('/posts/', '');
+  const postKey = Object.keys(posts).find(key => {
+    return extractPostId(key) === postSlug;
+  });
+
+  if (!postKey) {
+    return { currentPostId: null, navigationInfo: {} };
+  }
+
+  const currentPostId = extractPostId(postKey);
+  const postsMap = convertToPostsMap(posts);
+  const navigationInfo = findAdjacentPosts(currentPostId, postsMap);
+
+  return { currentPostId, navigationInfo };
+};
+
 export default jsxRenderer(({ children, title, frontmatter }, c) => {
-  // Load all posts for navigation calculation
   const posts = import.meta.glob<{ frontmatter: Meta }>('./posts/*.mdx', {
     eager: true,
   });
 
-  // Extract current post ID from the request path
-  const currentPath = c.req.path;
-  let currentPostId: string | null = null;
-  let navigationInfo = {};
-
-  // Check if we're on a post page
-  if (currentPath.startsWith('/posts/')) {
-    // Extract post ID from path like '/posts/honox+mdx+blog'
-    const postSlug = currentPath.replace('/posts/', '');
-    // Find the matching post file
-    const postKey = Object.keys(posts).find(key => {
-      const keyWithoutExtension = key.replace('./posts/', '').replace('.mdx', '');
-      return keyWithoutExtension === postSlug;
-    });
-
-    if (postKey) {
-      currentPostId = postKey.replace('./posts/', '').replace('.mdx', '');
-
-      // Convert posts to the format expected by navigation utilities
-      const postsMap = Object.entries(posts).reduce((acc, [key, module]) => {
-        const id = key.replace('./posts/', '').replace('.mdx', '');
-        acc[id] = { frontmatter: module.frontmatter };
-        return acc;
-      }, {} as Record<string, { frontmatter: Meta }>);
-
-      navigationInfo = findAdjacentPosts(currentPostId, postsMap);
-    }
-  }
+  const { currentPostId, navigationInfo } = getNavigationInfo(c.req.path, posts);
   return (
     <html lang='ja'>
       <head>
         <meta charset='UTF-8' />
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-        {<title>{title ?? frontmatter?.title ?? '日記'}</title>}
+        <title>{title ?? frontmatter?.title ?? '日記'}</title>
         {import.meta.env.PROD ? (
           <link rel='stylesheet' href='/static/assets/style.css' />
         ) : (
