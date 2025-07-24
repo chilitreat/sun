@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode client && vite build && npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
+    "test": "vitest",
+    "build": "vite build --mode client && vite build --mode server && npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
     "preview": "wrangler pages dev ./dist",
     "deploy": "npm run build && wrangler pages deploy ./dist"
   },
@@ -30,7 +31,9 @@
     "remark-mdx-frontmatter": "^4.0.0",
     "shiki": "^1.1.1",
     "tailwindcss": "^3.4.1",
+    "terser": "^5.43.1",
     "vite": "^5.0.12",
+    "vitest": "^3.2.4",
     "wrangler": "^3.27.0"
   }
 }

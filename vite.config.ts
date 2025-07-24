@@ -19,6 +19,19 @@ export default defineConfig(({ mode }) => {
           input: ['./app/style.css'],
           output: {
             assetFileNames: 'static/assets/[name].[ext]',
+            // Optimize chunk splitting for better caching
+            manualChunks: {
+              'vendor': ['hono', 'honox'],
+              'utils': ['./app/utils/hashtags.ts', './app/utils/filtering.ts', './app/utils/navigation.ts'],
+            },
+          },
+        },
+        // Enable minification and tree shaking
+        minify: 'terser',
+        terserOptions: {
+          compress: {
+            drop_console: true, // Remove console.log in production
+            drop_debugger: true,
           },
         },
       },
@@ -37,13 +50,37 @@ export default defineConfig(({ mode }) => {
             ],
           },
         }),
-        ssg({ entry }),
+        ssg({ 
+          entry,
+          minify: false  // Disable minification to prevent HTML structure issues
+        }),
         mdx({
           jsxImportSource: 'hono/jsx',
           remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
           rehypePlugins: [rehypePrettyCode],
         }),
       ],
+      build: {
+        // Server-side optimizations
+        minify: 'terser',
+        rollupOptions: {
+          output: {
+            // Optimize server bundle
+            manualChunks: (id) => {
+              if (id.includes('node_modules')) {
+                return 'vendor';
+              }
+              if (id.includes('/utils/')) {
+                return 'utils';
+              }
+            },
+          },
+        },
+      },
+      // Optimize dependencies
+      optimizeDeps: {
+        include: ['hono', 'honox', '@markdoc/markdoc'],
+      },
     };
   }
 });
