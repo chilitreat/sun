@@ -28,52 +28,18 @@ async function buildHashtagPages() {
   
   console.log(`Building ${hashtags.length} hashtag pages...`);
   
-  // Import and use the Hono app to render pages
-  try {
-    // Import the built server
-    const { default: app } = await import('../dist/index.js');
+  // For SSG builds, we create static pages directly
+  // This is the preferred approach for Cloudflare Pages
+  console.log('Creating static hashtag pages for SSG deployment...');
+  
+  for (const hashtag of hashtags) {
+    const encodedTag = encodeURIComponent(hashtag);
+    const content = createStaticHashtagPage(hashtag);
+    const fileName = `${encodedTag}.html`;
+    const filePath = join(hashtagDir, fileName);
     
-    for (const hashtag of hashtags) {
-      try {
-        const encodedTag = encodeURIComponent(hashtag);
-        const url = `http://localhost/hashtag/${encodedTag}`;
-        
-        // Create a request object
-        const req = new Request(url);
-        
-        // Get response from Hono app
-        const response = await app.fetch(req);
-        
-        if (response.ok) {
-          const html = await response.text();
-          const fileName = `${encodedTag}.html`;
-          const filePath = join(hashtagDir, fileName);
-          
-          writeFileSync(filePath, html, 'utf-8');
-          console.log(`Generated: /hashtag/${fileName}`);
-        } else {
-          console.warn(`Failed to render hashtag page for "${hashtag}": ${response.status}`);
-        }
-      } catch (error) {
-        console.error(`Error generating page for hashtag "${hashtag}":`, error.message);
-      }
-    }
-    
-    console.log(`Successfully built ${hashtags.length} hashtag pages`);
-  } catch (error) {
-    console.error('Failed to import Hono app:', error);
-    console.log('Falling back to simple static pages...');
-    
-    // Fallback: create simple static pages
-    for (const hashtag of hashtags) {
-      const encodedTag = encodeURIComponent(hashtag);
-      const content = createStaticHashtagPage(hashtag);
-      const fileName = `${encodedTag}.html`;
-      const filePath = join(hashtagDir, fileName);
-      
-      writeFileSync(filePath, content, 'utf-8');
-      console.log(`Generated fallback: /hashtag/${fileName}`);
-    }
+    writeFileSync(filePath, content, 'utf-8');
+    console.log(`Generated: /hashtag/${fileName}`);
   }
 }
 
@@ -126,17 +92,32 @@ function createStaticHashtagPage(hashtag) {
         </h2>
         
         <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
-          <p class="text-blue-800 text-sm">
-            🔄 Loading posts tagged with <strong>#${hashtag}</strong>...
+          <p class="text-blue-800 text-sm font-medium">
+            🔍 Filtering posts by <strong>#${hashtag}</strong>
           </p>
+          <a href="/" class="text-blue-600 hover:text-blue-800 underline text-sm">
+            Clear filter
+          </a>
         </div>
         
-        <div id="hashtag-content">
-          <p class="text-gray-600">
-            <a href="/" class="text-blue-600 hover:text-blue-800 underline">
-              ← Return to all posts
+        <div id="posts-container">
+          <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
+            <p class="text-yellow-800 text-sm">
+              📄 This is a static hashtag page for SEO and accessibility.
+            </p>
+            <p class="text-yellow-700 text-sm mt-2">
+              For dynamic filtering, please visit the <a href="/?filter=${hashtag}" class="text-blue-600 hover:text-blue-800 underline font-medium">main page with filter</a>.
+            </p>
+          </div>
+          
+          <div class="text-center py-4">
+            <p class="text-gray-600 mb-4">
+              Posts tagged with <strong>#${hashtag}</strong> will be shown here when dynamic loading is available.
+            </p>
+            <a href="/" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+              View All Posts
             </a>
-          </p>
+          </div>
         </div>
       </div>
     </article>
@@ -149,18 +130,9 @@ function createStaticHashtagPage(hashtag) {
   </footer>
 
   <script>
-    // Client-side enhancement for dynamic content loading
-    (function() {
-      // Redirect to the main hashtag route for proper server-side rendering
-      // This ensures compatibility with both static hosting and server environments
-      const currentPath = window.location.pathname;
-      const expectedPath = '/hashtag/${encodedTag}';
-      
-      if (currentPath !== expectedPath) {
-        // If we're on a static file (.html), redirect to the clean URL
-        window.location.replace(expectedPath);
-      }
-    })();
+    // Simple no-redirect static page
+    // This page serves as an SEO-friendly landing page for hashtag searches
+    console.log('Static hashtag page loaded for: ${hashtag}');
   </script>
 </body>
 </html>`;
