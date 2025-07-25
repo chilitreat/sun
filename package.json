@@ -10,7 +10,7 @@
   },
   "private": true,
   "dependencies": {
-    "@hono/zod-validator": "^0.1.11",
+    "@hono/zod-validator": "^0.7.0",
     "@markdoc/markdoc": "^0.5.0",
     "dayjs": "^1.11.10",
     "hono": "^4.0.0",
