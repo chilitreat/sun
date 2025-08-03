@@ -1,7 +1,7 @@
 ---
 mode: 'agent'
 model: GPT-4o
-tools: [ "changes", "codebase", "editFiles", "extensions", "fetch", "findTestFiles", "githubRepo", "new", "problems", "openSimpleBrowser", "runCommands", "runNotebooks", "runTasks", "runTests", "search", "searchResults", "terminalLastCommand", "terminalSelection", "testFailure", "usages", "vscodeAPI", "activePullRequest", "copilotCodingAgent" ],
+tools: [ "changes", "codebase", "editFiles", "extensions", "fetch", "findTestFiles", "githubRepo", "new", "problems", "openSimpleBrowser", "runCommands", "runNotebooks", "runTasks", "runTests", "search", "searchResults", "terminalLastCommand", "terminalSelection", "testFailure", "usages", "vscodeAPI", "activePullRequest", "copilotCodingAgent" ]
 description: 'Rev Specsの設定作業を実行します。既存のコードベースから包括的なテストケースと仕様書を逆生成します。'
 ---
 

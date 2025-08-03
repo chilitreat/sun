@@ -1,7 +1,7 @@
 ---
 mode: 'agent'
 model: GPT-4o
-tools: [ "changes", "codebase", "editFiles", "extensions", "fetch", "findTestFiles", "githubRepo", "new", "problems", "openSimpleBrowser", "runCommands", "runNotebooks", "runTasks", "runTests", "search", "searchResults", "terminalLastCommand", "terminalSelection", "testFailure", "usages", "vscodeAPI", "activePullRequest", "copilotCodingAgent" ],
+tools: [ "changes", "codebase", "editFiles", "extensions", "fetch", "findTestFiles", "githubRepo", "new", "problems", "openSimpleBrowser", "runCommands", "runNotebooks", "runTasks", "runTests", "search", "searchResults", "terminalLastCommand", "terminalSelection", "testFailure", "usages", "vscodeAPI", "activePullRequest", "copilotCodingAgent" ]
 description: 'Kairo Implementの設定作業を実行します。タスクに基づいてコード実装や準備作業を行います。'
 ---
 

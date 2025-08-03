@@ -1,7 +1,7 @@
 ---
 mode: 'agent'
 model: GPT-4o
-tools: [ "changes", "codebase", "editFiles", "extensions", "fetch", "findTestFiles", "githubRepo", "new", "problems", "openSimpleBrowser", "runCommands", "runNotebooks", "runTasks", "runTests", "search", "searchResults", "terminalLastCommand", "terminalSelection", "testFailure", "usages", "vscodeAPI", "activePullRequest", "copilotCodingAgent" ],
+tools: [ "changes", "codebase", "editFiles", "extensions", "fetch", "findTestFiles", "githubRepo", "new", "problems", "openSimpleBrowser", "runCommands", "runNotebooks", "runTasks", "runTests", "search", "searchResults", "terminalLastCommand", "terminalSelection", "testFailure", "usages", "vscodeAPI", "activePullRequest", "copilotCodingAgent" ]
 description: 'Rev Tasksの設定作業を実行します。既存のコードベースを分析し、実装されている機能を特定してタスク一覧として整理します。'
 ---
 
