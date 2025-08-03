@@ -1,5 +1,6 @@
 import type { FC } from 'hono/jsx'
 import { generateHashtagUrl } from '../utils/hashtags'
+import { TwitterShareButton } from 'react-share'
 
 type HashtagListProps = {
   hashtags: string[]
@@ -40,6 +41,13 @@ const HashtagList: FC<HashtagListProps> = ({ hashtags, size = 'medium' }) => {
           #{hashtag}
         </a>
       ))}
+      <TwitterShareButton
+        url={window.location.href}
+        title={"Check out this blog post!"}
+        class="mt-2 inline-block"
+      >
+        Share on Twitter
+      </TwitterShareButton>
     </div>
   )
 }
