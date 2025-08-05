@@ -4,17 +4,19 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
-    "build": "vite build --mode client && vite build --mode server && npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
+    "build": "vite build --mode client && vite build --mode server && npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css && wrangler pages functions build --outdir=.dist",
     "preview": "wrangler pages dev ./dist",
     "deploy": "npm run build && wrangler pages deploy ./dist"
   },
   "private": true,
   "dependencies": {
+    "@cloudflare/pages-plugin-vercel-og": "^0.1.2",
     "@hono/zod-validator": "^0.1.11",
     "@markdoc/markdoc": "^0.5.0",
     "dayjs": "^1.11.10",
-    "hono": "^4.0.0",
     "honox": "^0.1.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {

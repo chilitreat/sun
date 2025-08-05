@@ -21,8 +21,12 @@ export default defineConfig(({ mode }) => {
             assetFileNames: 'static/assets/[name].[ext]',
             // Optimize chunk splitting for better caching
             manualChunks: {
-              'vendor': ['hono', 'honox'],
-              'utils': ['./app/utils/hashtags.ts', './app/utils/filtering.ts', './app/utils/navigation.ts'],
+              vendor: ['hono', 'honox'],
+              utils: [
+                './app/utils/hashtags.ts',
+                './app/utils/filtering.ts',
+                './app/utils/navigation.ts',
+              ],
             },
           },
         },
@@ -50,9 +54,9 @@ export default defineConfig(({ mode }) => {
             ],
           },
         }),
-        ssg({ 
+        ssg({
           entry,
-          minify: false  // Disable minification to prevent HTML structure issues
+          minify: false, // Disable minification to prevent HTML structure issues
         }),
         mdx({
           jsxImportSource: 'hono/jsx',
@@ -64,6 +68,7 @@ export default defineConfig(({ mode }) => {
         // Server-side optimizations
         minify: 'terser',
         rollupOptions: {
+          input: entry,
           output: {
             // Optimize server bundle
             manualChunks: (id) => {
