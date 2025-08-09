@@ -21,12 +21,8 @@ export default defineConfig(({ mode }) => {
             assetFileNames: 'static/assets/[name].[ext]',
             // Optimize chunk splitting for better caching
             manualChunks: {
-              vendor: ['hono', 'honox'],
-              utils: [
-                './app/utils/hashtags.ts',
-                './app/utils/filtering.ts',
-                './app/utils/navigation.ts',
-              ],
+              'vendor': ['hono', 'honox'],
+              'utils': ['./app/utils/hashtags.ts', './app/utils/filtering.ts', './app/utils/navigation.ts'],
             },
           },
         },
@@ -43,27 +39,31 @@ export default defineConfig(({ mode }) => {
   } else {
     return {
       plugins: [
-        // MDXは最初に
+        honox({
+          devServer: {
+            entry,
+            plugins: [
+              pagesPlugin({
+                d1Databases: ['DB'],
+                d1Persist: './.wrangler/state/v3/d1',
+              }),
+            ],
+          },
+        }),
+        ssg({ 
+          entry,
+          minify: false  // Disable minification to prevent HTML structure issues
+        }),
         mdx({
           jsxImportSource: 'hono/jsx',
           remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
           rehypePlugins: [rehypePrettyCode],
         }),
-        honox({
-          devServer: {
-            entry,
-          },
-        }),
-        ssg({
-          entry,
-        }),
-        pagesPlugin(),
       ],
       build: {
         // Server-side optimizations
         minify: 'terser',
         rollupOptions: {
-          input: entry,
           output: {
             // Optimize server bundle
             manualChunks: (id) => {
@@ -76,11 +76,6 @@ export default defineConfig(({ mode }) => {
             },
           },
         },
-      },
-      // SSR時は全依存をバンドル
-      ssr: {
-        noExternal: true,
-        external: ['react', 'react-dom', 'classnames', 'react-share', 'jsonp'],
       },
       // Optimize dependencies
       optimizeDeps: {

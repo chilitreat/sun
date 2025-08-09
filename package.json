@@ -4,24 +4,17 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
-    "build": "vite build --mode client && vite build --mode server && npm run build:css && npm run build:functions",
-    "build:css": "npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
-    "build:functions": "wrangler pages functions build --outdir=./dist",
+    "build": "vite build --mode client && vite build --mode server && npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
     "preview": "wrangler pages dev ./dist",
     "deploy": "npm run build && wrangler pages deploy ./dist"
   },
   "private": true,
   "dependencies": {
-    "@cloudflare/pages-plugin-vercel-og": "^0.1.2",
     "@hono/zod-validator": "^0.1.11",
     "@markdoc/markdoc": "^0.5.0",
     "dayjs": "^1.11.10",
-    "hono": "^4.8.12",
+    "hono": "^4.0.0",
     "honox": "^0.1.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-share": "^5.2.2",
-    "typescript": "^5.4.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -30,7 +23,6 @@
     "@hono/vite-ssg": "^0.0.1",
     "@mdx-js/rollup": "^3.0.0",
     "@tailwindcss/typography": "^0.5.10",
-    "@vitest/coverage-v8": "^3.2.4",
     "autoprefixer": "^10.4.17",
     "better-sqlite3": "^9.4.0",
     "postcss": "^8.4.35",
