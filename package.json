@@ -6,7 +6,7 @@
     "test": "vitest",
     "build": "vite build --mode client && vite build --mode server && npm run build:css && npm run build:functions",
     "build:css": "npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
-    "build:functions": "wrangler pages functions build --outdir=.dist",
+    "build:functions": "wrangler pages functions build --outdir=./dist",
     "preview": "wrangler pages dev ./dist",
     "deploy": "npm run build && wrangler pages deploy ./dist"
   },
