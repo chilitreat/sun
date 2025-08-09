@@ -43,26 +43,21 @@ export default defineConfig(({ mode }) => {
   } else {
     return {
       plugins: [
-        honox({
-          devServer: {
-            entry,
-            plugins: [
-              pagesPlugin({
-                d1Databases: ['DB'],
-                d1Persist: './.wrangler/state/v3/d1',
-              }),
-            ],
-          },
-        }),
-        ssg({
-          entry,
-          minify: false, // Disable minification to prevent HTML structure issues
-        }),
+        // MDXは最初に
         mdx({
           jsxImportSource: 'hono/jsx',
           remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
           rehypePlugins: [rehypePrettyCode],
         }),
+        honox({
+          devServer: {
+            entry,
+          },
+        }),
+        ssg({
+          entry,
+        }),
+        pagesPlugin(),
       ],
       build: {
         // Server-side optimizations
@@ -81,6 +76,11 @@ export default defineConfig(({ mode }) => {
             },
           },
         },
+      },
+      // SSR時は全依存をバンドル
+      ssr: {
+        noExternal: true,
+        external: ['react', 'react-dom', 'classnames', 'react-share', 'jsonp'],
       },
       // Optimize dependencies
       optimizeDeps: {

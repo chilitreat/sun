@@ -4,7 +4,9 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
-    "build": "vite build --mode client && vite build --mode server && npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css && wrangler pages functions build --outdir=.dist",
+    "build": "vite build --mode client && vite build --mode server && npm run build:css && npm run build:functions",
+    "build:css": "npx tailwindcss -i ./app/style.css -o ./dist/static/assets/style.css",
+    "build:functions": "wrangler pages functions build --outdir=.dist",
     "preview": "wrangler pages dev ./dist",
     "deploy": "npm run build && wrangler pages deploy ./dist"
   },
@@ -16,8 +18,10 @@
     "dayjs": "^1.11.10",
     "hono": "^4.8.12",
     "honox": "^0.1.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-share": "^5.2.2",
+    "typescript": "^5.4.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {
