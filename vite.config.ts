@@ -61,6 +61,7 @@ export default defineConfig(({ mode }) => {
       ],
       build: {
         // Server-side optimizations
+        outDir: 'dist',
         minify: 'terser',
         rollupOptions: {
           input: entry,
