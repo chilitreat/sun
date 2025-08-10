@@ -6,11 +6,7 @@ interface Props {
 
 export const onRequest = vercelOGPagesPlugin<Props>({
   imagePathSuffix: '/og-image.png', // ファイル名を定義
-  component: ({ ogTitle, pathname }: { pathname: string }) => {
-    // pathnameから最後の要素を抜き出す
-    const paths = pathname.split('/');
-    const slug = paths[paths.length - 1];
-
+  component: ({ ogTitle }) => {
     return (
       <div
         style={{
@@ -22,16 +18,19 @@ export const onRequest = vercelOGPagesPlugin<Props>({
           // 画像の幅いっぱいまでdivを広げる
           width: '100%',
           height: '100%',
+          fontFamily: 'Noto Sans JP, Noto Sans, Arial, Helvetica, sans-serif', // 文字化け防止
         }}
       >
-        <h1 style={{ fontSize: '80px' }}>{ogTitle}</h1>
-        <h2 style={{ fontSize: '30px' }}>{slug}</h2>
+        <h1 style={{ fontSize: '80px', fontFamily: 'inherit' }}>{ogTitle}</h1>
+        <h2 style={{ fontSize: '30px', fontFamily: 'inherit' }}>
+          chilitreatの日記（仮）
+        </h2>
       </div>
     );
   },
   extractors: {
     on: {
-      title: (props) => ({
+      'meta[property="og:title"]': (props) => ({
         element(element) {
           props.ogTitle = element.getAttribute('content');
         },
