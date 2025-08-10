@@ -66,3 +66,25 @@ if (fs.existsSync(maybeNested) && fs.statSync(maybeNested).isDirectory()) {
 
 
 fs.rmSync(path.join(distDir, 'dist'), { recursive: true, force: true });
+
+// public/ ディレクトリを dist/ にコピー
+const publicDir = path.resolve('public');
+if (fs.existsSync(publicDir)) {
+  function copyPublic(srcDir, destDir) {
+    for (const entry of fs.readdirSync(srcDir)) {
+      const srcPath = path.join(srcDir, entry);
+      const destPath = path.join(destDir, entry);
+      const stat = fs.statSync(srcPath);
+      if (stat.isDirectory()) {
+        if (!fs.existsSync(destPath)) fs.mkdirSync(destPath, { recursive: true });
+        copyPublic(srcPath, destPath);
+      } else {
+        const destParent = path.dirname(destPath);
+        if (!fs.existsSync(destParent)) fs.mkdirSync(destParent, { recursive: true });
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  }
+  copyPublic(publicDir, distDir);
+  console.log('[postbuild] public/ ディレクトリを dist/ にコピーしました');
+}
