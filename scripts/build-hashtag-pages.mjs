@@ -178,7 +178,12 @@ async function buildHashtagPages() {
 
   for (const hashtag of hashtags) {
     const matching = sortByDateDesc(posts.filter((post) => postMatchesHashtag(post, hashtag)));
-    const fileName = `${encodeURIComponent(hashtag)}.html`;
+    // Write the file under its literal (decoded) name, e.g. `ポエム.html`.
+    // Cloudflare Pages resolves request paths against decoded asset names, so a
+    // percent-encoded filename like `%E3%83%9D....html` would be unreachable for
+    // non-ASCII tags. `normalizeHashtag` has already stripped path separators and
+    // other unsafe characters, leaving only [a-z0-9] + kana/kanji.
+    const fileName = `${hashtag}.html`;
     const filePath = join(hashtagDir, fileName);
 
     writeFileSync(filePath, createStaticHashtagPage(hashtag, matching), 'utf-8');
