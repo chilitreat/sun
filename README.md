@@ -17,8 +17,7 @@ MDXファイルを使用してマークダウン形式でブログ記事を作�
 - **TypeScript** - 型安全な開発環境
 
 ### バックエンド
-- **Hono** (v4.0.0) - 軽量高速Webフレームワーク
-- **Cloudflare D1** - SQLiteベースのサーバーレスデータベース
+- **Hono** (v4.8.12) - 軽量高速Webフレームワーク
 - **Zod** (v3.22.4) - スキーマバリデーション
 
 ### ビルド・ツール
@@ -64,6 +63,7 @@ emoji: 🌟
 title: 新しい記事のタイトル
 author: あなたの名前
 created_at: 2024/7/21
+hashtags: ["tech", "web"]
 ---
 
 ## 記事の内容
@@ -104,10 +104,8 @@ sun/
 │   ├── routes/            # ファイルベースルーティング
 │   │   ├── index/         # ホームページ
 │   │   └── posts/         # ブログ記事（MDX）
-│   ├── db.ts             # D1データベース操作
 │   ├── types.ts          # 型定義
 │   └── style.css         # グローバルスタイル
-├── blog.sql              # D1データベーススキーマ
 ├── package.json
 ├── vite.config.ts        # Vite設定
 ├── tailwind.config.js    # TailwindCSS設定

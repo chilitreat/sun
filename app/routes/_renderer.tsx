@@ -58,7 +58,8 @@ export default jsxRenderer(({ children, title, frontmatter }, c) => {
       <head>
         <meta charset='UTF-8' />
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-        <title>{title ?? frontmatter?.title ?? '日記'}</title>
+        <title>{title ?? frontmatter?.title ?? '日記(仮)'}</title>
+        <meta property='og:title' content={title ?? frontmatter?.title ?? '日記(仮)'} />
         {import.meta.env.PROD ? (
           <link rel='stylesheet' href='/static/assets/style.css' />
         ) : (
