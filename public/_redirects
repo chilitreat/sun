@@ -1,3 +1,0 @@
-# Cloudflare Pages redirects for hashtag pages
-# Serve static hashtag HTML files directly without redirect loops
-/hashtag/:tag /hashtag/:tag.html 200!

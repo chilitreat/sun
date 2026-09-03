@@ -1,62 +1,119 @@
 /**
- * Build-time hashtag page generation using the actual Hono app
- * This creates real static HTML files for each hashtag
+ * Build-time hashtag page generation for SSG.
+ *
+ * Renders a real static HTML file per hashtag containing the list of matching
+ * posts (title, author, date), mirroring the markup produced by the Hono route
+ * at app/routes/hashtag/[tag].tsx so the pages are useful without JavaScript.
  */
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { extractAllHashtags } from './extract-hashtags.mjs';
+import { extractAllHashtags, getPostsMetadata } from './extract-hashtags.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /**
- * Load the Hono app and render hashtag pages
+ * Escape a value for safe interpolation into HTML text / attributes.
+ * @param {unknown} value
+ * @returns {string}
  */
-async function buildHashtagPages() {
-  const distDir = join(__dirname, '../dist');
-  const hashtagDir = join(distDir, 'hashtag');
-  
-  // Ensure hashtag directory exists
-  if (!existsSync(hashtagDir)) {
-    mkdirSync(hashtagDir, { recursive: true });
-  }
-  
-  // Extract hashtags
-  const hashtags = extractAllHashtags();
-  
-  console.log(`Building ${hashtags.length} hashtag pages...`);
-  
-  // For SSG builds, we create static pages directly
-  // This is the preferred approach for Cloudflare Pages
-  console.log('Creating static hashtag pages for SSG deployment...');
-  
-  for (const hashtag of hashtags) {
-    const encodedTag = encodeURIComponent(hashtag);
-    const content = createStaticHashtagPage(hashtag);
-    const fileName = `${encodedTag}.html`;
-    const filePath = join(hashtagDir, fileName);
-    
-    writeFileSync(filePath, content, 'utf-8');
-    console.log(`Generated: /hashtag/${fileName}`);
-  }
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 /**
- * Create a static hashtag page with client-side enhancement
+ * Whether a post carries the given normalized hashtag.
+ * Keeps the react/reactjs alias in sync with app/utils/filtering.ts.
+ * @param {{ hashtags: string[] }} post
+ * @param {string} normalizedTag
  */
-function createStaticHashtagPage(hashtag) {
-  const encodedTag = encodeURIComponent(hashtag);
-  
+function postMatchesHashtag(post, normalizedTag) {
+  return post.hashtags.some(
+    (tag) =>
+      tag === normalizedTag ||
+      (normalizedTag === 'reactjs' && tag === 'react') ||
+      (normalizedTag === 'react' && tag === 'reactjs')
+  );
+}
+
+/**
+ * Sort posts newest-first, matching app/utils/precompute.ts.
+ */
+function sortByDateDesc(posts) {
+  return [...posts].sort((a, b) => {
+    const dateA = new Date(a.created_at).getTime();
+    const dateB = new Date(b.created_at).getTime();
+    if (Number.isNaN(dateA) && Number.isNaN(dateB)) return 0;
+    if (Number.isNaN(dateA)) return 1;
+    if (Number.isNaN(dateB)) return -1;
+    return dateB - dateA;
+  });
+}
+
+function renderCard(post) {
+  return `        <li class="flex flex-row mb-2">
+          <a href="/posts/${escapeHtml(post.slug)}" class="select-none cursor-pointer bg-gray-50 rounded-md flex flex-1 items-center p-4">
+            <div class="flex flex-col rounded-md w-10 h-10 bg-gray-200 justify-center items-center mr-2">${escapeHtml(post.emoji || '📝')}</div>
+            <div class="flex-1 pl-1 mr-4">
+              <div class="font-medium break-normal">${escapeHtml(post.title || 'Untitled')}</div>
+              <div class="text-gray-600 text-sm">by ${escapeHtml(post.author || 'Unknown')}</div>
+            </div>
+            <div class="text-gray-600 text-xs">${escapeHtml(post.created_at || 'Unknown date')}</div>
+          </a>
+        </li>`;
+}
+
+function renderFilterBanner(hashtag, postCount) {
+  const noun = postCount === 1 ? 'post' : 'posts';
+  const emptyBlock =
+    postCount === 0
+      ? `
+      <div class="mt-3 pt-3 border-t border-blue-200">
+        <p class="text-sm text-gray-600 mb-2">No posts found with the hashtag "#${escapeHtml(hashtag)}"</p>
+        <a href="/" class="text-sm text-blue-600 hover:text-blue-800 underline">View all posts</a>
+      </div>`
+      : '';
+
+  return `      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">#${escapeHtml(hashtag)}</span>
+          <span class="text-sm text-gray-600">${postCount} ${noun} found</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="/" class="text-sm text-blue-600 hover:text-blue-800 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded" aria-label="Clear hashtag filter for ${escapeHtml(hashtag)}">Clear filter</a>
+        </div>
+      </div>${emptyBlock}
+    </div>`;
+}
+
+/**
+ * Build a full static HTML document for one hashtag, wrapping the post list in
+ * the same header/footer shell as app/routes/_renderer.tsx.
+ */
+function createStaticHashtagPage(hashtag, posts) {
+  const list = posts.length
+    ? `      <div class="container flex mx-auto items-center justify-center">
+        <ul class="flex flex-col w-full">
+${posts.map(renderCard).join('\n')}
+        </ul>
+      </div>`
+    : '';
+
   return `<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Posts tagged with "#${hashtag}" - 日記（仮）</title>
+  <title>Posts tagged with "#${escapeHtml(hashtag)}" - 日記（仮）</title>
   <link rel="stylesheet" href="/static/assets/style.css"/>
-  <meta name="description" content="Posts tagged with #${hashtag}"/>
+  <meta name="description" content="Posts tagged with #${escapeHtml(hashtag)}"/>
 </head>
 <body>
   <header class="bg-gray-100">
@@ -67,78 +124,74 @@ function createStaticHashtagPage(hashtag) {
       <ul class="flex">
         <li class="px-4">
           <a href="https://misskey.chilitreat.dev">
-            <img src="https://assets.misskey-hub.net/public/icon.png" alt="misskey-icon" class="w-5 h-5"/>
+            <img src="https://assets.misskey-hub.net/public/icon.png" alt="chilitreat on Misskey" class="w-5 h-5"/>
           </a>
         </li>
         <li class="px-4">
           <a href="https://twitter.com/chilitreat">
-            <img src="https://icongr.am/simple/twitter.svg?size=30&color=currentColor&colored=false" alt="" class="w-5 h-5"/>
+            <img src="https://icongr.am/simple/twitter.svg?size=30&amp;color=currentColor&amp;colored=false" alt="chilitreat on Twitter" class="w-5 h-5"/>
           </a>
         </li>
         <li class="px-4">
           <a href="https://github.com/chilitreat/">
-            <img src="https://icongr.am/devicon/github-original.svg?size=30&color=currentColor" alt="" class="w-5 h-5"/>
+            <img src="https://icongr.am/devicon/github-original.svg?size=30&amp;color=currentColor" alt="chilitreat on GitHub" class="w-5 h-5"/>
           </a>
         </li>
       </ul>
     </nav>
   </header>
-  
+
   <main class="px-2">
     <article class="prose">
       <div class="mx-auto">
         <h2 class="text-xl font-semibold mt-1 mb-4">
-          Posts tagged with "#${hashtag}"
+          Posts tagged with "#${escapeHtml(hashtag)}"
         </h2>
-        
-        <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
-          <p class="text-blue-800 text-sm font-medium">
-            🔍 Filtering posts by <strong>#${hashtag}</strong>
-          </p>
-          <a href="/" class="text-blue-600 hover:text-blue-800 underline text-sm">
-            Clear filter
-          </a>
-        </div>
-        
-        <div id="posts-container">
-          <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
-            <p class="text-yellow-800 text-sm">
-              📄 This is a static hashtag page for SEO and accessibility.
-            </p>
-            <p class="text-yellow-700 text-sm mt-2">
-              For dynamic filtering, please visit the <a href="/?filter=${hashtag}" class="text-blue-600 hover:text-blue-800 underline font-medium">main page with filter</a>.
-            </p>
-          </div>
-          
-          <div class="text-center py-4">
-            <p class="text-gray-600 mb-4">
-              Posts tagged with <strong>#${hashtag}</strong> will be shown here when dynamic loading is available.
-            </p>
-            <a href="/" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-              View All Posts
-            </a>
-          </div>
-        </div>
+${renderFilterBanner(hashtag, posts.length)}
+${list}
       </div>
     </article>
   </main>
-  
+
   <footer class="bg-gray-100">
     <p class="text-center text-sm">
-      © chilitreatの日記（仮）. All rights reserved.
+      &copy; chilitreatの日記（仮）. All rights reserved.
     </p>
   </footer>
-
-  <script>
-    // Simple no-redirect static page
-    // This page serves as an SEO-friendly landing page for hashtag searches
-    console.log('Static hashtag page loaded for: ${hashtag}');
-  </script>
 </body>
-</html>`;
+</html>
+`;
 }
 
-// CLI usage
-if (import.meta.url === `file://${process.argv[1]}`) {
-  buildHashtagPages().catch(console.error);
+async function buildHashtagPages() {
+  const distDir = join(__dirname, '../dist');
+  const hashtagDir = join(distDir, 'hashtag');
+
+  if (!existsSync(hashtagDir)) {
+    mkdirSync(hashtagDir, { recursive: true });
+  }
+
+  const hashtags = extractAllHashtags();
+  const posts = getPostsMetadata();
+
+  console.log(`Building ${hashtags.length} hashtag pages...`);
+
+  for (const hashtag of hashtags) {
+    const matching = sortByDateDesc(posts.filter((post) => postMatchesHashtag(post, hashtag)));
+    const fileName = `${encodeURIComponent(hashtag)}.html`;
+    const filePath = join(hashtagDir, fileName);
+
+    writeFileSync(filePath, createStaticHashtagPage(hashtag, matching), 'utf-8');
+    console.log(`Generated: /hashtag/${fileName} (${matching.length} posts)`);
+  }
 }
+
+// CLI usage: compare resolved paths so the check works across platforms.
+if (process.argv[1] && resolve(process.argv[1]) === __filename) {
+  buildHashtagPages().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
+
+export { buildHashtagPages, createStaticHashtagPage };
